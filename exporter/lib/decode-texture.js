@@ -2,8 +2,9 @@
 
 const bmp = require('bmp-js');
 const decodeDXT = require('decode-dxt');
+const Jimp = require('jimp');
 
-module.exports = function decodeTexture(tex) {
+module.exports = async function decodeTexture(tex) {
 	switch (tex.textureFormat) {
 		// jpeg (saved as .jpg)
 		case 1:
@@ -29,7 +30,13 @@ module.exports = function decodeTexture(tex) {
 				data: bmpData, width: tex.width, height: tex.height,
 			});
 			
-			return { extension: 'bmp', buffer: rawData.data }
+			// return { extension: 'bmp', buffer: rawData.data }
+
+			let buffer;
+			buffer = await Jimp.read(rawData.data).then(async img=>{
+				return await img.getBufferAsync(Jimp.MIME_JPEG).then(jpg=>jpg);
+			});
+			return { extension: 'jpg', buffer: buffer }
 		default:
 			throw `unknown textureFormat ${tex.textureFormat}`
 	}

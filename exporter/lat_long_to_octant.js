@@ -15,7 +15,8 @@ const latLongToOctant = require('./lib/convert-lat-long-to-octant')(utils);
 /***************************** main *****************************/
 async function run() {
 
-	let [lat, lon] = [process.argv[2], process.argv[3]];
+	// let [lat, lon] = [process.argv[2], process.argv[3]];
+	let [lat, lon, level] = [process.argv[2], process.argv[3], process.argv[4]];
 
 	if ([lat, lon].includes(undefined)) {
 		const invoc = `node ${require('path').basename(__filename)}`;
@@ -28,16 +29,24 @@ async function run() {
 	[lat, lon] = [parseFloat(lat), parseFloat(lon)];
 	const foundOctants = await latLongToOctant(lat, lon, MAX_LEVEL);
 
-	console.log(lat + ', ' + lon);
-	console.log('-------------');
+	// console.log(lat + ', ' + lon);
+	// console.log('-------------');
 
-	for (let octantLevel in foundOctants) {
+	// for (let octantLevel in foundOctants) {
+	const keys = Object.keys(foundOctants).sort((a,b)=>parseInt(a)-parseInt(b));
+	for (let i=0; i<keys.length; i++) {
+		let octantLevel = keys[i];
 		let octants = foundOctants[octantLevel].octants;
 		let box = foundOctants[octantLevel].box;
-		console.log("Octant Level:", octantLevel);
-		console.log(box);
-		for (let i = 0; i < octants.length; i++) {
-			console.log("    " + octants[i]);
+		// console.log("Octant Level:", octantLevel);
+		// console.log(box);
+		for (let j = 0; j < octants.length; j++) {
+			// console.log("    " + octants[j]);
+			// console.log("    " + octants[j]);
+		}
+		if (octantLevel==level || i >= keys.length-1){
+			console.log(octants[0]);
+			break;
 		}
 	}
 }

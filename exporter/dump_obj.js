@@ -27,6 +27,7 @@ async function run() {
 	if (DUMP_OBJ) {
 		const octName = OCTANTS.length > 3 ? `${OCTANTS.slice(0,3).join('+')}+etc` : OCTANTS.join('+');
 		const objDir = path.join(DUMP_OBJ_DIR, `${octName}-${MAX_LEVEL}-${rootEpoch}`);
+		console.log(objDir);
 		fs.removeSync(objDir);
 		fs.ensureDirSync(objDir);
 		objCtx = initCtxOBJ(objDir);
@@ -36,11 +37,11 @@ async function run() {
 
 	const search = initNodeSearch(rootEpoch, PARALLEL_SEARCH ? 16 : 1,
 		function nodeFound(path) {
-			console.log('found', path);
+			// console.log('found', path);
 			octants++;
 		},
 		function nodeDownloaded(path, node, octantsToExclude) {
-			console.log('downloaded', path);
+			// console.log('downloaded', path);
 			DUMP_OBJ && writeNodeOBJ(objCtx, node, path, octantsToExclude);
 		}
 	);
@@ -49,7 +50,7 @@ async function run() {
 		await search(oct, MAX_LEVEL);
 	}
 
-	console.log('octants', octants)
+	// console.log('octants', octants)
 }
 /****************************************************************/
 
@@ -140,7 +141,7 @@ function initCtxOBJ(dir) {
 	return { objDir: dir, c_v: 0, c_n: 0, c_u: 0 };
 }
 
-function writeNodeOBJ(ctx, node, nodeName, exclude) {
+async function writeNodeOBJ(ctx, node, nodeName, exclude) {
 	for (const [meshIndex, mesh] of Object.entries(node.meshes)) {
 		const meshName = `${nodeName}_${meshIndex}`;
 		const tex = mesh.texture;
@@ -149,7 +150,7 @@ function writeNodeOBJ(ctx, node, nodeName, exclude) {
 		const obj = writeMeshOBJ(ctx, meshName, texName, node, mesh, exclude);
 		fs.appendFileSync(path.join(ctx.objDir, 'model.obj'), obj);
 
-		const { buffer: buf, extension: ext } = decodeTexture(tex);
+		let { buffer: buf, extension: ext } = await decodeTexture(tex);
 		fs.appendFileSync(path.join(ctx.objDir, 'model.mtl'), `
 			newmtl ${texName}
 			Kd 1.000 1.000 1.000
