@@ -45,7 +45,7 @@ async function run() {
 			// console.log("    " + octants[j]);
 		}
 		if (octantLevel==level || i >= keys.length-1){
-			console.log(octants[0]);
+			console.log(octants.join(','), [box.n, box.s, box.w, box.e].join(','));
 			break;
 		}
 	}
