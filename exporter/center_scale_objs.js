@@ -9,7 +9,15 @@ const path = require('path');
 const OBJ_DIR = './downloaded_files/obj';
 const SCALE = 10;
 
-const subdirs = process.argv.slice(2);
+const [ lat, lon ] = process.argv.slice(2,4);
+const subdirs = process.argv.slice(4);
+const h = 6371*1000;
+
+const DegreesToRadians = Math.PI / 180;
+
+const offset_x = h * Math.cos(lat * DegreesToRadians) * Math.cos(lon * DegreesToRadians);
+const offset_y = h * Math.cos(lat * DegreesToRadians) * Math.sin(lon * DegreesToRadians);
+const offset_z = h * Math.sin(lat * DegreesToRadians);
 
 let min_x = Infinity, max_x = -Infinity;
 let min_y = Infinity, max_y = -Infinity;
@@ -17,6 +25,14 @@ let min_z = Infinity, max_z = -Infinity;
 
 async function run(){
 	await scanObjs(subdirs.map(x=>`${x}/model.obj`));
+	const center_x = (max_x + min_x) / 2;
+	const center_y = (max_y + min_y) / 2;
+	const center_z = (max_z + min_z) / 2;
+	const distance_x = Math.abs(max_x - min_x);
+	const distance_y = Math.abs(max_y - min_y);
+	const distance_z = Math.abs(max_z - min_z);
+	const max_distance = Math.max(distance_x, distance_y, distance_z);
+	console.log([max_distance, center_x, center_y, center_z, offset_x, offset_y, offset_z].join(','));
 
 	for (let i of subdirs) {
 		if (!fs.statSync(i).isDirectory()) continue;
@@ -82,9 +98,9 @@ async function scaleMoveObj(file_in, file_out) {
 			if (!/^v /.test(line))
 				return io.output.write(`${line}\n`);
 			let [x, y, z] = line.split(' ').slice(1).map(parseFloat);
-			x = (x - center_x) / max_distance * SCALE;
-			y = (y - center_y) / max_distance * SCALE;
-			z = (z - center_z) / max_distance * SCALE;
+			x = (x - offset_x) / max_distance * SCALE;
+			y = (y - offset_y) / max_distance * SCALE;
+			z = (z - offset_z) / max_distance * SCALE;
 			io.output.write(`v ${x} ${y} ${z}\n`);
 		}).on('close', () => {
 			// console.error(`done. saved as ${file_out}`);

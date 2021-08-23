@@ -71,7 +71,7 @@ function scaleMoveObj(file_in, file_out) {
 			z = (z - center_z) / max_distance * SCALE;
 			io.output.write(`v ${x} ${y} ${z}\n`);
 		}).on('close', () => {
-			console.error(`done. saved as ${file_out}`);
+			// console.error(`done. saved as ${file_out}`);
 		});
 	});
 }
