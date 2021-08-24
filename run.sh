@@ -24,6 +24,8 @@ for i in "${!dirs[@]}"; do
     cd $dir
     test ! -f $output && \
         /root/.nvm/versions/node/v14.16.1/bin/node /root/.nvm/versions/node/v14.16.1/lib/node_modules/obj2gltf/bin/obj2gltf.js --unlit -b -i model.2.obj -o $output >&2
+    test ! -f $output && \
+        cp $wd/empty.glb $output
     # gltf-transform weld --tolerance 0.01 model.glb $output
     cd $wd
 done
