@@ -56,7 +56,7 @@ async function run() {
 /****************************************************************/
 
 /**************************** search ****************************/
-function initNodeSearch(rootEpoch, numParallelBranches = 1, nodeFound = null, nodeDownloaded = null) {
+function initNodeSearch(rootEpoch, numParallelBranches = 6, nodeFound = null, nodeDownloaded = null) {
 	const sem = semaphore(numParallelBranches - 1);
 
 	return async function search(k, maxLevel = 999) {

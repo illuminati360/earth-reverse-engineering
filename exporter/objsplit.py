@@ -166,7 +166,6 @@ def main(file_in, dir_out):
             f_out.write(v_normals[int(normal)])
 
         f_out.write(''.join(objects[o_id]['faces']))
-    print (part)
 
 if __name__ == '__main__':
     file_in = sys.argv[1]

@@ -39,7 +39,7 @@ async function run(){
 
 		for (let j of fs.readdirSync(i)) {
 			j = path.resolve(i, j);
-			if (!/\.obj$/.test(j) || /\.2\.obj$/.test(j)) continue;
+			if (!/model.obj$/.test(j)) continue;
 			if (!fs.statSync(j).isFile()) continue;
 
 			await scaleMoveObj(j, `${j.match(/(.*)\.obj$/)[1]}.2.obj`);

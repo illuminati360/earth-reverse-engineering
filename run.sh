@@ -13,19 +13,40 @@ done
 
 node center_scale_objs.js $( python octant_to_latlon.py $(echo $octants | cut -d' ' -f1) ) $dirs
 echo $box
-echo $octants
 
 dirs=($dirs)
 octants=($octants)
+results=""
 for i in "${!dirs[@]}"; do
     dir=${dirs[$i]}
     octant=${octants[$i]}
-    output=/root/AltSpaceMREs/public/gltf/$octant.glb
+    output=/root/AltSpaceMREs/public/gltf/$octant
     cd $dir
-    test ! -f $output && \
-        /root/.nvm/versions/node/v14.16.1/bin/node /root/.nvm/versions/node/v14.16.1/lib/node_modules/obj2gltf/bin/obj2gltf.js --unlit -b -i model.2.obj -o $output >&2
-    test ! -f $output && \
-        cp $wd/empty.glb $output
-    # gltf-transform weld --tolerance 0.01 model.glb $output
+
+    inputs="model.2.obj"
+
+    size=$(stat -c%s model.2.obj)
+    test $size -gt 3000000 && \
+    test ! -f "model.2.0.obj" && \
+        python /root/earth-reverse-engineering/exporter/objsplit.py model.2.obj ./
+
+    test -f "model.2.0.obj" && inputs=$(ls model.2.*.obj)
+
+    inputs=($inputs)
+    for input in ${inputs[@]}; do
+        n=$(echo $input | cut -d'.' -f3)
+        if test "$n" != "0" && test "$n" != "obj"; then
+            result=$output.$n.glb
+        else
+            result=$output.glb
+        fi
+        results=$results" "$result
+        test ! -f $result && \
+            /root/.nvm/versions/node/v14.16.1/bin/node /root/.nvm/versions/node/v14.16.1/lib/node_modules/obj2gltf/bin/obj2gltf.js --unlit -b -i $input -o $result >&2
+        test ! -f $result && \
+            cp $wd/empty.glb $result
+    done
     cd $wd
 done
+
+echo $results
